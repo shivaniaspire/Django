@@ -23,6 +23,7 @@ from Practice_temp import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("",views.index, name="index" ),
-    path("help",views.help, name='help')
+    # path("",views.index, name="index" ),
+    # path("help",views.help, name='help'),
+    path("Practice_temp/",views.index, name='index' )
 ]
