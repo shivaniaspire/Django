@@ -1,0 +1,117 @@
+###Steps 
+
+- django-admin startproject ProTwo 
+- cd ProTwo 
+- python manage.py startapp appTwo 
+- mkdir -p templates/appTwo 
+- create templates/appTwo/index.html
+- create templates/appTwo/users.html
+
+edit ProjectTwo/settings.py : 
+
+1. TEMPLATES_DIR = os.path.join(BASE_DIR, "templates") 
+
+2. "DIRS": [
+          TEMPLATES_DIR , 
+        ],
+
+3. add 'AppTwo' in installed_apps 
+
+4. edit AppTwo/models.py 
+
+     class User(models.Model):
+         first_name = models.CharField(max_length=128)
+         last_name = models.CharField(max_length=128)
+         email = models.EmailField(max_length=264,unique=True)
+
+5. edit appTwo/views.py 
+
+      from django.shortcuts import render
+      
+      from appTwo.models import Users
+      
+      def index(request):
+          return render(request, 'appTwo/index,html')
+      
+      
+      def users(request):
+          user_list = Users.objects.order_by('first_name')
+          user_dict = {'users': user_list}
+          return render(request, 'appTwo/users.html', context=user_dict)
+
+6. create new file appTwo/ursl.py 
+      from django.urls import path
+      from appTwo import views
+      
+      urlpatterns = [
+      	path('', views.users, name='users'),
+      	
+      ]
+7. edit proTwo//ursl.py 
+      from django.contrib import admin
+      from django.urls import path,include
+      
+      from appTwo import views
+      
+      urlpatterns = [
+      	path('', views.index, name='index'),
+      	path("admin/", admin.site.urls),
+		path("users/",views.users, name='users'),
+      	#path("users/",include('appTwo.urls'))
+      ]
+
+8. in terminal run command : 
+   i).  python manage.py migrate
+   ii). python .\manage.py makemigrations appTwo
+   iii).python manage.py migrate
+   
+9. edit proTwo/admin.py file 
+      from django.contrib import admin
+      from appTwo.models import Users
+      
+      # Register your models here.
+      admin.site.register(Users)
+	  
+10. in terminal run command : 
+    python manage.py runserver 
+
+11. create proTwo/populate_users.py 
+
+       import os
+       os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ProTwo.settings')
+       
+       import django
+       django.setup()
+       
+       from appTwo.models import Users
+       from faker import Faker
+       
+       fakegen = Faker()
+       
+       def populate(N=5):
+           fakegen = Faker()
+           
+           for entry in range(N):
+               fake_name = fakegen.name().split()
+               fake_first_name = fake_name[0]
+               fake_last_name = fake_name[1]
+           
+               fake_email = fakegen.email()
+       
+               user = Users.objects.get_or_create(first_name = fake_first_name, 
+                                                  last_name = fake_last_name,
+                                                    email = fake_email)[0]
+       
+       if __name__ == '__main__':
+           print("Populating Databse")
+           populate(20)
+           print("complete")
+           
+12. in terminal run : 
+       python populate_users.py 
+
+13. python .\manage.py createsuperuser    
+      -> it will ask user name and password 
+14. python manage.py runserver  and also edit users.html 
+-> goto admin admin with above created login cred , you can see the user data 
+
